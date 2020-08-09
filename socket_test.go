@@ -65,9 +65,9 @@ func TestBasicConnectionRecv(t *testing.T) {
 		t.Errorf("n cannot be 28")
 	}
 
-	found := bytes.Compare(content, []byte("Content-Type: auth/request\n\n"))
-	if found != 0 {
-		t.Errorf("Expected 'Content-Type: auth/request', got: '%s' | %+v | side: %d", content, content, found)
+	found := bytes.HasPrefix(content, []byte("Content-Type: auth/request\n\n"))
+	if !found {
+		t.Errorf("Expected 'Content-Type: auth/request', got: '%s' | %+v | side: %t", content, content, found)
 	}
 
 	err = socket.Close()
@@ -109,9 +109,9 @@ func TestBasicConnectionSendRecv(t *testing.T) {
 		t.Errorf("n cannot be 28")
 	}
 
-	found := bytes.Compare(content, []byte("Content-Type: auth/request\n\n"))
-	if found != 0 {
-		t.Errorf("Expected 'Content-Type: auth/request', got: '%s' | %+v | side: %d", content, content, found)
+	found := bytes.HasPrefix(content, []byte("Content-Type: auth/request\n\n"))
+	if !found {
+		t.Errorf("Expected 'Content-Type: auth/request', got: '%s' | %+v | side: %t", content, content, found)
 	}
 
 	n, content, err = socket.SendRecv("auth " + eslPasword)
@@ -126,10 +126,10 @@ func TestBasicConnectionSendRecv(t *testing.T) {
 
 	expected := []byte("Content-Type: command/reply\nReply-Text: +OK accepted\n\n")
 
-	found = bytes.Compare(expected, content[0:n])
-	if found != 0 {
+	cmp := bytes.Compare(expected, content[0:n])
+	if cmp != 0 {
 		t.Errorf("Expected '%s' %+v \ngot: '%s' | %+v | side: %d\n",
-			expected, expected, content, content, found)
+			expected, expected, content, content, cmp)
 	}
 }
 
@@ -156,7 +156,7 @@ func TestBasicAuthentication(t *testing.T) {
 	}
 
 	if !loggedIn {
-		t.Errorf("Not loggedin based on return")
+		t.Errorf("Not logged in based on return")
 		return
 	}
 

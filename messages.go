@@ -3,6 +3,7 @@ package esl
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net/textproto"
@@ -65,9 +66,11 @@ func (m *Message) Parse() error {
 		m.Headers.Add(key, value)
 	}
 
-	contentLength := m.Headers.GetInt("Content-Length")
-	if contentLength == 0 {
-		return
+	if m.Headers.Exists("Content-Length") {
+		contentLength := m.Headers.GetInt("Content-Length")
+		if contentLength == 0 {
+			return errors.New("Content Length is zero")
+		}
 	}
 
 	return nil

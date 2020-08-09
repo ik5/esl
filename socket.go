@@ -134,7 +134,7 @@ func (s Socket) SendRecv(cmd string) (int, []byte, error) {
 }
 
 // Login into the ESL server
-func (s Socket) Login() (bool, error) {
+func (s *Socket) Login() (bool, error) {
 	if s.loggedin {
 		return true, nil
 	}
@@ -170,8 +170,14 @@ func (s Socket) Login() (bool, error) {
 		return false, err
 	}
 
-	fmt.Printf("Content: %s\n %+v\n%+v\n", content, content, msg)
-	return false, nil
+	headers := msg.Headers
+
+	answer := headers.GetString("Reply-Text")
+	loggedIn := strings.Compare("+OK accepted", answer)
+
+	s.loggedin = loggedIn == 0
+
+	return s.loggedin, nil
 }
 
 // LoggedIn is true if a login was made successfully

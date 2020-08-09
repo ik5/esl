@@ -28,18 +28,16 @@ func (h Headers) String() string {
 	h.lock.RLock()
 	defer h.lock.RUnlock()
 
-	values := make([]string, len(h.header))
-	for keys := range h.header {
-		values = append(values, keys)
-	}
+	var values []string = h.Keys()
 
-	headers := make([]string, len(values))
+	var headers []string
 
 	for _, key := range values {
-		headers = append(headers, h.GetString(key))
+		val := h.GetString(key)
+		headers = append(headers, val)
 	}
 
-	return fmt.Sprintf("%s", strings.Join(headers, ", "))
+	return fmt.Sprintf("%s", strings.Join(headers, " | "))
 }
 
 // Add a new header, or update an existed one
@@ -117,4 +115,27 @@ func (h *Headers) Remove(key string) {
 	defer h.lock.Unlock()
 
 	delete(h.header, key)
+}
+
+// Exists a given key at the headers
+func (h *Headers) Exists(key string) bool {
+	h.lock.RLock()
+	defer h.lock.RUnlock()
+
+	_, exists := h.header[key]
+	return exists
+}
+
+// Keys returns a list of all existed keys available
+func (h *Headers) Keys() []string {
+	h.lock.RLock()
+	defer h.lock.RUnlock()
+
+	var keys []string
+
+	for key := range h.header {
+		keys = append(keys, key)
+	}
+
+	return keys
 }
