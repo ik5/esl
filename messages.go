@@ -25,7 +25,7 @@ type Message struct {
 // As return will give brand new Message{} for you to use it.
 func NewMessage(buf []byte, autoParse bool) (*Message, error) {
 
-	reader := bufio.NewReader(bytes.NewReader(buf))
+	reader := bufio.NewReaderSize(bytes.NewReader(buf), int(MaxBufferSize))
 
 	msg := Message{
 		buf:     buf,
@@ -44,7 +44,10 @@ func NewMessage(buf []byte, autoParse bool) (*Message, error) {
 }
 
 func (m *Message) String() string {
-	return fmt.Sprintf("%s | %s", m.Headers, m.Body)
+	if len(m.Body) > 0 {
+		return fmt.Sprintf("Headers: %s ; Body: %s", m.Headers, m.Body)
+	}
+	return fmt.Sprintf("Headers: %s", m.Headers)
 }
 
 // Parse out message received from ESL and make it Go friendly.
@@ -69,7 +72,7 @@ func (m *Message) Parse() error {
 	if m.Headers.Exists("Content-Length") {
 		contentLength := m.Headers.GetInt("Content-Length")
 		if contentLength == 0 {
-			return errors.New("Content Length is zero")
+			return ContentLengthZeroError
 		}
 
 		l := int(m.Headers.GetInt("Content-Length"))
@@ -113,22 +116,18 @@ func (m *Message) HasError() bool {
 }
 
 // Error return the message error msg or empty string if non found
-func (m *Message) Error() string {
+func (m *Message) Error() error {
 	if !m.HasError() {
-		return ""
-	}
-
-	if m.Headers.Exists("Content-Length") {
-		return string(m.Body[5:])
+		return nil
 	}
 
 	switch m.ContentType() {
 	case ECTCommandReply:
 		err := m.Headers.GetString("Reply-Text")
-		return err[5:]
+		return errors.New(err[5:])
 	case ECTAPIResponse:
-		return string(m.Body)
+		return errors.New(string(m.Body[5:]))
+	default:
+		return nil
 	}
-
-	return ""
 }

@@ -148,7 +148,7 @@ func (s Socket) SendRecv(cmd string) (int, []byte, error) {
 		return 0, nil, err
 	}
 
-	return s.Recv(BufferSize)
+	return s.Recv(MaxBufferSize)
 }
 
 // Login into the ESL server

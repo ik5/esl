@@ -6,10 +6,11 @@ import "errors"
 const (
 	DefaultPort                 = "8021"
 	EOL                         = "\r\n"
-	BufferSize            int64 = 2048
+	MaxBufferSize         int64 = 2_000_000
 	AuthRequestBufferSize int64 = 32
 )
 
 var (
-	CmdEOLError = errors.New("cmd contains EOL")
+	CmdEOLError            = errors.New("cmd contains EOL")
+	ContentLengthZeroError = errors.New("Content Length is zero")
 )

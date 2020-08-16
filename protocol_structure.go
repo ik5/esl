@@ -28,16 +28,16 @@ func (h Headers) String() string {
 	h.lock.RLock()
 	defer h.lock.RUnlock()
 
-	var values []string = h.Keys()
+	var headers []string = h.Keys()
 
-	var headers []string
+	var full []string
 
-	for _, key := range values {
+	for _, key := range headers {
 		val := h.GetString(key)
-		headers = append(headers, val)
+		full = append(full, fmt.Sprintf("%s=%s", key, val))
 	}
 
-	return fmt.Sprintf("%s", strings.Join(headers, " | "))
+	return fmt.Sprintf("%s", strings.Join(full, " | "))
 }
 
 // Add a new header, or update an existed one
