@@ -3,7 +3,6 @@ package esl
 import (
 	"bufio"
 	"context"
-	"errors"
 	"fmt"
 	"net"
 	"strings"
@@ -87,6 +86,25 @@ func Dial(host string, password string, maxRetries uint64, timeout time.Duration
 
 // Close a connection
 func (s Socket) Close() error {
+	err := s.writer.Flush()
+	if err != nil {
+		return err
+	}
+
+	err = s.conn.SetKeepAlive(false)
+	if err != nil {
+		return err
+	}
+
+	err = s.conn.CloseRead()
+	if err != nil {
+		return err
+	}
+
+	err = s.conn.CloseWrite()
+	if err != nil {
+		return err
+	}
 	return s.conn.Close()
 }
 
@@ -97,7 +115,7 @@ func (s Socket) Send(cmd string) error {
 	defer s.lock.Unlock()
 
 	if strings.HasSuffix(cmd, EOL) {
-		return errors.New("cmd contain EOL")
+		return CmdEOLError
 	}
 
 	buf := cmd + EOL + EOL
@@ -156,9 +174,9 @@ func (s *Socket) Login() (bool, error) {
 		return false, fmt.Errorf("Invalid Content-Type: %s", contentType)
 	}
 
-	n, content, err = s.SendRecv("auth " + eslPasword)
+	n, content, err = s.SendRecv("auth " + s.password)
 	if err != nil {
-		return false, fmt.Errorf("Login error: %s", err)
+		return false, fmt.Errorf("Unable to send/recv auth: %s", err)
 	}
 
 	if int64(n) <= AuthRequestBufferSize {
@@ -171,7 +189,7 @@ func (s *Socket) Login() (bool, error) {
 	}
 
 	if msg.HasError() {
-		return false, errors.New(msg.Error())
+		return false, fmt.Errorf("Login error: %s", msg.Error())
 	}
 
 	headers := msg.Headers

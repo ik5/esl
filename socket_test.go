@@ -2,7 +2,9 @@ package esl
 
 import (
 	"bytes"
+	"errors"
 	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -33,6 +35,35 @@ func TestBasicConnection(t *testing.T) {
 	}
 }
 
+func TestBasicConnectionSendCmdEOL(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+
+	socket, err := Dial(eslHost, eslPasword, 1, 30*time.Second)
+	if err != nil {
+		t.Errorf("Dial error: %s", err)
+		return
+	}
+
+	if socket == nil {
+		t.Errorf("Socket is nil")
+		return
+	}
+	defer socket.Close()
+
+	err = socket.Send(EOL)
+	if err == nil {
+		t.Errorf("No Error was returned")
+		return
+	}
+
+	if !errors.Is(err, CmdEOLError) {
+		t.Errorf("Unexpected error: %s", err)
+		return
+	}
+}
+
 func TestBasicConnectionRecv(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
@@ -47,6 +78,7 @@ func TestBasicConnectionRecv(t *testing.T) {
 		t.Errorf("Socket is nil")
 		return
 	}
+	defer socket.Close()
 
 	n, content, err := socket.Recv(AuthRequestBufferSize)
 	if err != nil {
@@ -164,4 +196,84 @@ func TestBasicAuthentication(t *testing.T) {
 		t.Errorf("Not marked as logged in")
 		return
 	}
+}
+
+func TestDoubleAuthentication(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+	socket, err := Dial(eslHost, eslPasword, 1, 30*time.Second)
+	if err != nil {
+		t.Errorf("Dial error: %s", err)
+		return
+	}
+
+	if socket == nil {
+		t.Errorf("Socket is nil")
+		return
+	}
+	defer socket.Close()
+
+	loggedIn, err := socket.Login()
+	if err != nil {
+		t.Errorf("Login error: %s", err)
+		return
+	}
+
+	if !loggedIn {
+		t.Errorf("Not logged in based on return")
+		return
+	}
+
+	loggedIn, err = socket.Login()
+	if err != nil {
+		t.Errorf("Login error: %s", err)
+		return
+	}
+
+	if !loggedIn {
+		t.Errorf("Expected logged in to be true")
+	}
+}
+
+func TestAuthenticationBadCredentials(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+	// Place bad login to test it up
+	socket, err := Dial(eslHost, eslPasword+eslHost, 1, 30*time.Second)
+	if err != nil {
+		t.Errorf("Dial error: %s", err)
+		return
+	}
+
+	if socket == nil {
+		t.Errorf("Socket is nil")
+		return
+	}
+	defer socket.Close()
+
+	loggedIn, err := socket.Login()
+	if err == nil {
+		t.Errorf("Expected error, but was not received one")
+		return
+	}
+
+	if loggedIn {
+		t.Errorf("Expected not to be logged in")
+		return
+	}
+
+	strErr := err.Error()
+
+	if strings.HasPrefix("Unable to send/recv auth:", strErr) {
+		t.Errorf("Error sending connection: %s", strErr)
+		return
+	}
+
+	if strErr != "Login error: invalid" {
+		t.Errorf("Unexpected error: %s", strErr)
+		return
+	}
+
 }

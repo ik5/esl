@@ -71,7 +71,64 @@ func (m *Message) Parse() error {
 		if contentLength == 0 {
 			return errors.New("Content Length is zero")
 		}
+
+		l := int(m.Headers.GetInt("Content-Length"))
+		lines := make([]byte, 0, l)
+
+		for err == nil {
+			line, err := m.tr.ReadLineBytes()
+			if err != nil {
+				if errors.Is(err, io.EOF) {
+					break
+				}
+				return err
+			}
+			lines = append(lines, line...)
+			if len(lines) >= l {
+				lines = lines[:l]
+				break
+			}
+		}
+		m.Body = lines
+		return nil
 	}
 
 	return nil
+}
+
+// ContentType returns the content type arrived, or empty string if not found
+func (m *Message) ContentType() EventContentType {
+	contentType := m.Headers.GetString("Content-Type")
+
+	return EventContentType(contentType)
+}
+
+// HasError return true if a message got error from freeswitch message
+func (m *Message) HasError() bool {
+	if m.Headers.Exists("Content-Length") {
+		return bytes.HasPrefix(m.Body, []byte("-ERR"))
+	}
+	err := m.Headers.GetString("Reply-Text")
+	return strings.HasPrefix(err, "-ERR")
+}
+
+// Error return the message error msg or empty string if non found
+func (m *Message) Error() string {
+	if !m.HasError() {
+		return ""
+	}
+
+	if m.Headers.Exists("Content-Length") {
+		return string(m.Body[5:])
+	}
+
+	switch m.ContentType() {
+	case ECTCommandReply:
+		err := m.Headers.GetString("Reply-Text")
+		return err[5:]
+	case ECTAPIResponse:
+		return string(m.Body)
+	}
+
+	return ""
 }
