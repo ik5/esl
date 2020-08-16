@@ -170,6 +170,10 @@ func (s *Socket) Login() (bool, error) {
 		return false, err
 	}
 
+	if msg.HasError() {
+		return false, errors.New(msg.Error())
+	}
+
 	headers := msg.Headers
 
 	answer := headers.GetString("Reply-Text")
