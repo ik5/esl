@@ -87,12 +87,13 @@ func (m *Message) Parse() error {
 				return err
 			}
 			lines = append(lines, line...)
+			lines = append(lines, '\n') // Add \n
 			if len(lines) >= l {
 				lines = lines[:l]
 				break
 			}
 		}
-		m.Body = lines
+		m.Body = bytes.TrimSuffix(lines, []byte{'\n'}) // remove the last \n
 		return nil
 	}
 

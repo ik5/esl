@@ -68,8 +68,8 @@ func TestMessageAsString(t *testing.T) {
 	}
 	msgContent := []fixture{
 		{
-			input:    []byte("Content-Type: api/response\nContent-Length: 27\n\n-ERR af Command not found!\n\n"),
-			expected: "Headers: Content-Type=api/response | Content-Length=27 ; Body: -ERR af Command not found!",
+			input:    []byte("Content-Length: 27\n\n-ERR af Command not found!\n\n"),
+			expected: "Headers: Content-Length=27 ; Body: -ERR af Command not found!",
 		},
 		{
 			input:    []byte("Content-Type: auth/request\n\n"),
