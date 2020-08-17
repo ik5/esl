@@ -141,16 +141,6 @@ func (s Socket) Recv(maxBuff int64) (int, []byte, error) {
 	return n, buf, err
 }
 
-// SendRecv sends a content and wait for returns an answer
-func (s Socket) SendRecv(cmd string) (int, []byte, error) {
-	err := s.Send(cmd)
-	if err != nil {
-		return 0, nil, err
-	}
-
-	return s.Recv(MaxBufferSize)
-}
-
 // Login into the ESL server
 func (s *Socket) Login() (bool, error) {
 	if s.loggedin {
