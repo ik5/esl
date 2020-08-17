@@ -57,7 +57,7 @@ func (m *Message) Parse() error {
 
 	mime, err = m.tr.ReadMIMEHeader()
 	if err != nil {
-		if err != io.EOF {
+		if !errors.Is(err, io.EOF) {
 			return err
 		}
 	}
