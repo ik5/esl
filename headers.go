@@ -68,15 +68,16 @@ func (h Headers) GetString(key string) string {
 	switch val.Kind() {
 	case reflect.String:
 		return val.String()
-	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		i := val.Int()
 		return strconv.FormatInt(i, 10)
-	case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		i := val.Uint()
 		return strconv.FormatUint(i, 10)
 	case reflect.Float32, reflect.Float64:
 		f := val.Float()
-		return strconv.FormatFloat(f, ',', 3, 32)
+		s := strconv.FormatFloat(f, 'f', 3, 64)
+		return s
 	default:
 		return ""
 	}
@@ -95,10 +96,10 @@ func (h Headers) GetInt(key string) int64 {
 			return 0
 		}
 		return i
-	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		i := val.Int()
 		return i
-	case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		i := val.Uint()
 		return int64(i)
 	case reflect.Float32, reflect.Float64:
