@@ -118,6 +118,13 @@ func (h *Headers) Remove(key string) {
 	delete(h.header, key)
 }
 
+// Len returns the length of current headers
+func (h Headers) Len() int {
+	h.lock.RLock()
+	defer h.lock.RUnlock()
+	return len(h.header)
+}
+
 // Exists a given key at the headers
 func (h *Headers) Exists(key string) bool {
 	h.lock.RLock()

@@ -185,3 +185,36 @@ func TestHeadersString(t *testing.T) {
 		return
 	}
 }
+
+func TestHeadersLen(t *testing.T) {
+	headers := NewHeaders()
+
+	l := headers.Len()
+	if l > 0 {
+		t.Errorf("Expected len of 0, got: %d", l)
+		return
+	}
+
+	headers.Add("foo", "bar")
+	l = headers.Len()
+
+	if l != 1 {
+		t.Errorf("Expected len of 1, got %d", l)
+		return
+	}
+
+	headers.Add("int", 10)
+	l = headers.Len()
+
+	if l != 2 {
+		t.Errorf("Expected len of 2, got %d", l)
+		return
+	}
+
+	headers.Remove("foo")
+	l = headers.Len()
+	if l != 1 {
+		t.Errorf("Expected len of 1, got %d", l)
+		return
+	}
+}
