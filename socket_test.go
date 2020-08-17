@@ -58,7 +58,7 @@ func TestBasicConnectionSendCmdEOL(t *testing.T) {
 		return
 	}
 
-	if !errors.Is(err, CmdEOLError) {
+	if !errors.Is(err, ErrCmdEOL) {
 		t.Errorf("Unexpected error: %s", err)
 		return
 	}
@@ -276,4 +276,22 @@ func TestAuthenticationBadCredentials(t *testing.T) {
 		return
 	}
 
+}
+
+func TestSocketConnect(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+
+	socket, err := Connect(eslHost, eslPasword, 1, 30*time.Second)
+	if err != nil {
+		t.Errorf("Unable to connect: %s", err)
+		return
+	}
+
+	if socket == nil {
+		t.Errorf("Socket is nil without an error")
+		return
+	}
+	socket.Close()
 }

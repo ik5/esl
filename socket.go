@@ -84,6 +84,32 @@ func Dial(host string, password string, maxRetries uint64, timeout time.Duration
 	return &socket, nil
 }
 
+// Connect Connect to ESL and does a login.
+// If an error occurs, it will disconnect and return an error
+func Connect(host string, password string, maxRetries uint64, timeout time.Duration) (*Socket, error) {
+	socket, err := Dial(host, password, maxRetries, timeout)
+	if err != nil {
+		return nil, err
+	}
+
+	if socket == nil {
+		return nil, ErrUnableToGetConnectedSocket
+	}
+
+	loggedIn, err := socket.Login()
+	if err != nil {
+		socket.Close()
+		return nil, err
+	}
+
+	if !loggedIn {
+		socket.Close()
+		return nil, ErrUnableToLogInNoErrorReturned
+	}
+
+	return socket, nil
+}
+
 // Close a connection
 func (s Socket) Close() error {
 	err := s.writer.Flush()
@@ -115,7 +141,7 @@ func (s Socket) Send(cmd string) error {
 	defer s.lock.Unlock()
 
 	if strings.HasSuffix(cmd, EOL) {
-		return CmdEOLError
+		return ErrCmdEOL
 	}
 
 	buf := cmd + EOL + EOL

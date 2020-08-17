@@ -72,7 +72,7 @@ func (m *Message) Parse() error {
 	if m.Headers.Exists("Content-Length") {
 		contentLength := m.Headers.GetInt("Content-Length")
 		if contentLength == 0 {
-			return ContentLengthZeroError
+			return ErrContentLengthZero
 		}
 
 		l := int(m.Headers.GetInt("Content-Length"))

@@ -99,7 +99,7 @@ func TestMessageParseContentLengthZero(t *testing.T) {
 		t.Errorf("No error found.")
 	}
 
-	if !errors.Is(err, ContentLengthZeroError) {
+	if !errors.Is(err, ErrContentLengthZero) {
 		t.Errorf("Unexpected error found: %s", err)
 	}
 }
