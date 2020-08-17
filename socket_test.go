@@ -295,3 +295,34 @@ func TestSocketConnect(t *testing.T) {
 	}
 	socket.Close()
 }
+
+func TestSocketConnectFailedPassword(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+
+	socket, err := Connect(eslHost, eslPasword+eslHost, 1, 30*time.Second)
+
+	if err == nil {
+		t.Errorf("An error was expected, but non provided")
+		if socket != nil {
+			socket.Close()
+		}
+	}
+}
+
+func TestSocketConnectAddressError(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+
+	socket, err := Connect(eslHost+".511", eslPasword, 1, 30*time.Second)
+
+	if err == nil {
+		t.Errorf("An error was expected, but non provided")
+		if socket != nil {
+			socket.Close()
+		}
+	}
+
+}
