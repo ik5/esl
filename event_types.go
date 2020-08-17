@@ -27,6 +27,8 @@ const (
 	ECTDisconnectNotice     EventContentType = "text/disconnect-notice"
 	ECTRudeRejection        EventContentType = "text/rude-rejection"
 	ECTEventPlain           EventContentType = "text/event-plain"
+	ECTEventJSON            EventContentType = "text/event-json"
+	ECTEventXML             EventContentType = "text/event-xml"
 	ECTTextPlain            EventContentType = "text/plain"
 	ECTSimpleMessageSummary EventContentType = "application/simple-message-summary"
 	ECLogData               EventContentType = "log/data"
