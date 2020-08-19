@@ -12,6 +12,7 @@ const (
 
 // Error instances that are used and can be validated using errors.Is
 var (
+	ErrConnectionIsNotInitialized   = errors.New("Connection is not initialized")
 	ErrCmdEOL                       = errors.New("cmd contains EOL")
 	ErrContentLengthZero            = errors.New("Content Length is zero")
 	ErrUnableToGetConnectedSocket   = errors.New("Unable to get connected socket")

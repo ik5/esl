@@ -1,7 +1,5 @@
 package esl
 
-import "fmt"
-
 // Current file contains the implementation of ESL.i interface.
 // the file is part of sockets.go but focuses only on the interface
 
@@ -17,24 +15,22 @@ func (s Socket) SendRecv(cmd string) (int, []byte, error) {
 
 // API sends the api commands
 func (s Socket) API(cmd string, args string) (*Message, error) {
-	_, buffer, err := s.SendRecv(fmt.Sprintf("api %s %s", cmd, args))
+	_, msg, err := s.SendCommands("api", cmd, args)
 
 	if err != nil {
 		return nil, err
 	}
 
-	message, err := NewMessage(buffer, true)
-	return message, err
+	return msg, err
 }
 
 // BgAPI sends the bgapi commands
 func (s Socket) BgAPI(cmd string, args string) (*Message, error) {
-	_, buffer, err := s.SendRecv(fmt.Sprintf("bgapi %s %s", cmd, args))
+	_, msg, err := s.SendCommands("bgapi", cmd, args)
 
 	if err != nil {
 		return nil, err
 	}
 
-	message, err := NewMessage(buffer, true)
-	return message, err
+	return msg, err
 }

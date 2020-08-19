@@ -137,12 +137,16 @@ func (s Socket) Close() error {
 // Send a request to ESL.
 // If cmd contains EOL
 func (s Socket) Send(cmd string) error {
-	s.lock.Lock()
-	defer s.lock.Unlock()
+	if s.conn == nil {
+		return ErrConnectionIsNotInitialized
+	}
 
 	if strings.HasSuffix(cmd, EOL) {
 		return ErrCmdEOL
 	}
+
+	s.lock.Lock()
+	defer s.lock.Unlock()
 
 	buf := cmd + EOL + EOL
 	l := len(buf)
@@ -162,6 +166,9 @@ func (s Socket) Send(cmd string) error {
 
 // Recv a content from the server
 func (s Socket) Recv(maxBuff int64) (int, []byte, error) {
+	if s.conn == nil {
+		return 0, nil, ErrConnectionIsNotInitialized
+	}
 	buf := make([]byte, maxBuff)
 	n, err := s.reader.Read(buf)
 	return n, buf, err
@@ -221,4 +228,19 @@ func (s *Socket) Login() (bool, error) {
 // LoggedIn is true if a login was made successfully
 func (s *Socket) LoggedIn() bool {
 	return s.loggedin
+}
+
+// SendCommands execute an ESL command and return number of bytes, messages or
+// an error back.
+//
+// This function is used by all intercaces (such as API, BgAPI etc...)
+func (s Socket) SendCommands(action, cmd, args string) (int, *Message, error) {
+	n, buffer, err := s.SendRecv(fmt.Sprintf("%s %s %s", action, cmd, args))
+
+	if err != nil {
+		return 0, nil, err
+	}
+
+	message, err := NewMessage(buffer, true)
+	return n, message, err
 }
