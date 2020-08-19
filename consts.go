@@ -5,7 +5,7 @@ import "errors"
 // Default settings
 const (
 	DefaultPort                 = "8021"
-	EOL                         = "\r\n"
+	EOL                         = "\n"
 	MaxBufferSize         int64 = 2_000_000
 	AuthRequestBufferSize int64 = 32
 )
