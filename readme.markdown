@@ -66,13 +66,13 @@ func main() {
 
 # TODO:
 
-[ ] Add debug support using callbacks.
-[ ] Finish interface support.
-[ ] Work on supporting events (Dual connection commands and for events).
-[ ] Parse events
-[ ] Work on supporting callbacks for registered events.
-[ ] Examples
-[ ] Better documentation
+ - [ ] Add debug support using callbacks.
+ - [ ] Finish interface support.
+ - [ ] Work on supporting events (Dual connection commands and for events).
+ - [ ] Parse events
+ - [ ] Work on supporting callbacks for registered events.
+ - [ ] Examples
+ - [ ] Better documentation
 
 # License
 
