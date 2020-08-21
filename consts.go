@@ -16,6 +16,9 @@ type EventType int
 // EventContentType is the content type for events
 type EventContentType string
 
+// EventOutputType holds the type of output to use with events
+type EventOutputType string
+
 // Types of events, known commands have their names
 //
 const (
@@ -42,6 +45,13 @@ const (
 	ECTTextPlain            EventContentType = "text/plain"
 	ECTSimpleMessageSummary EventContentType = "application/simple-message-summary"
 	ECLogData               EventContentType = "log/data"
+)
+
+// The list of event output types
+const (
+	EOTPlain EventOutputType = "plain"
+	EOUTXML  EventOutputType = "xml"
+	EOUTJSON EventOutputType = "json"
 )
 
 // Error instances that are used and can be validated using errors.Is
